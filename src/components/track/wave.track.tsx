@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useWaveSurfer } from "@/utils/customHook";
 import { WaveSurferOptions } from "waveSurfer.js";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
@@ -9,7 +9,8 @@ import "./wave.scss";
 import { Tooltip } from "@mui/material";
 import { useTrackContext } from "@/lib/track.warpper";
 import CommentTrack from "./comment.track";
-import { fetchDefaultImages } from "@/utils/api";
+import { fetchDefaultImages, sendRequest } from "@/utils/api";
+import LikeTrack from "./like.track";
 
 interface IProps {
   track: ITrackTop | null;
@@ -17,6 +18,7 @@ interface IProps {
 }
 
 const WaveTrack = (props: IProps) => {
+  const router = useRouter();
   const { track, comments } = props;
   const searchParams = useSearchParams();
   const fileName = searchParams.get("audio");
@@ -25,7 +27,7 @@ const WaveTrack = (props: IProps) => {
   const [time, setTime] = useState<string>("0:00");
   const [duration, setDuration] = useState<string>("0:00");
   const { currentTrack, setCurrentTrack } = useTrackContext() as ITrackContext;
-
+  const firstViewRef = useRef(true);
   const optionsMemo = useMemo((): Omit<WaveSurferOptions, "container"> => {
     let gradient, progressGradient;
     if (typeof window !== "undefined") {
@@ -144,30 +146,6 @@ const WaveTrack = (props: IProps) => {
     return `${minutes}:${paddedSeconds}`;
   };
 
-  const arrComments = [
-    {
-      id: 1,
-      avatar: "http://localhost:8000/images/chill1.png",
-      moment: 10,
-      user: "username 1",
-      content: "just a comment1",
-    },
-    {
-      id: 2,
-      avatar: "http://localhost:8000/images/chill1.png",
-      moment: 30,
-      user: "username 2",
-      content: "just a comment3",
-    },
-    {
-      id: 3,
-      avatar: "http://localhost:8000/images/chill1.png",
-      moment: 50,
-      user: "username 3",
-      content: "just a comment3",
-    },
-  ];
-
   const calLeft = (moment: number) => {
     const hardCodeDuration = 199;
     const percent = (moment / hardCodeDuration) * 100;
@@ -175,15 +153,36 @@ const WaveTrack = (props: IProps) => {
   };
 
   useEffect(() => {
-    if (track?._id === currentTrack?._id && waveSurfer) {
-      currentTrack.isPlaying && waveSurfer.pause();
+    if (
+      track?._id === currentTrack?._id &&
+      waveSurfer &&
+      currentTrack.isPlaying
+    ) {
+      waveSurfer.pause();
     }
   }, [currentTrack]);
 
-  // useEffect(() => {
-  //   if (track?._id && !currentTrack?._id)
-  //     setCurrentTrack({ ...track});
-  // }, [track]);
+  useEffect(() => {
+    getTrack();
+  }, []);
+
+  const getTrack = useCallback(() => {
+    if (track?._id) {
+      setCurrentTrack({ ...track, isPlaying: true });
+    }
+  }, [track]);
+
+  const handleIncreaseView = async () => {
+    if (firstViewRef.current) {
+      await sendRequest<IBackendRes<IModelPaginate<ITrackLike>>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/tracks/increase-view`,
+        method: "POST",
+        body: { trackId: track?._id },
+      });
+      router.refresh();
+      firstViewRef.current = false;
+    }
+  };
 
   return (
     <div style={{ marginTop: 20 }}>
@@ -210,7 +209,10 @@ const WaveTrack = (props: IProps) => {
           <div className="info" style={{ display: "flex" }}>
             <div>
               <div
-                onClick={() => onPlayClick()}
+                onClick={() => {
+                  onPlayClick();
+                  handleIncreaseView();
+                }}
                 style={{
                   borderRadius: "50%",
                   background: "#f50",
@@ -325,6 +327,9 @@ const WaveTrack = (props: IProps) => {
             ></div>
           )}
         </div>
+      </div>
+      <div>
+        <LikeTrack track={track}></LikeTrack>
       </div>
       <div>
         <CommentTrack

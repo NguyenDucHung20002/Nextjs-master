@@ -9,6 +9,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Divider from "@mui/material/Divider";
 import Link from "next/link";
+import Image from "next/image";
 
 interface IProps {
   data: ITrackTop[];
@@ -63,6 +64,32 @@ const MainSlider = (props: IProps) => {
     slidesToScroll: 1,
     nextArrow: <NextArrow />,
     prevArrow: <PrevArrow />,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 3,
+          slidesToScroll: 3,
+          infinite: true,
+          dots: true,
+        },
+      },
+      {
+        breakpoint: 600,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 2,
+          initialSlide: 2,
+        },
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        },
+      },
+    ],
   };
   //box === div
   return (
@@ -88,10 +115,21 @@ const MainSlider = (props: IProps) => {
       <Slider {...settings}>
         {data.map((track) => (
           <div className="track" key={track._id}>
-            <img
+            {/* <img
               src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/images/${track.imgUrl}`}
               alt={track.imgUrl}
-            />
+            /> */}
+
+            <div
+              style={{ position: "relative", height: "200px", width: "100%" }}
+            >
+              <Image
+                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/images/${track.imgUrl}`}
+                alt={"just a image"}
+                fill
+                style={{ objectFit: "contain" }}
+              ></Image>
+            </div>
             <Link
               style={{ textDecoration: "none", color: "unset" }}
               href={`/track/${track._id}/?audio=${track.trackUrl}&id=${track._id}`}

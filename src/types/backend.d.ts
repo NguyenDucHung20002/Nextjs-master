@@ -51,29 +51,42 @@ declare global {
   }
 
   interface IShareTrack extends ITrackTop {
-    isPlaying: boolean;
+    isPlaying?: boolean;
+  }
+
+  interface ITrackContext {
+    currentTrack: IShareTrack;
+    setCurrentTrack: (v: IShareTrack) => void;
   }
 
   interface ITrackComment {
     _id: string;
     content: string;
     moment: number;
+    user: {
+      _id: string;
+      email: string;
+      name: string;
+      role: string;
+      type: string;
+    };
     track: string;
-    user: IUser;
     isDeleted: boolean;
+
     createdAt: string;
+    updatedAt: string;
   }
 
-  interface IUser {
+  interface ITrackLike {
     _id: string;
-    email: string;
-    name: string;
-    type: string;
-    role: string;
-  }
-
-  interface ITrackContext {
-    currentTrack: IShareTrack;
-    setCurrentTrack(track: IShareTrack): void;
+    title: string;
+    description: string;
+    category: string;
+    imgUrl: string;
+    trackUrl: string;
+    countLike: number;
+    countPlay: number;
+    createdAt: string;
+    updatedAt: string;
   }
 }

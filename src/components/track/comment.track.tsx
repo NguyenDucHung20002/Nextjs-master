@@ -9,6 +9,7 @@ import dayjs from "dayjs";
 import WaveSurfer from "waveSurfer.js";
 
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useHasMounted } from "@/utils/customHook";
 dayjs.extend(relativeTime);
 
 interface IProps {
@@ -19,7 +20,7 @@ interface IProps {
 
 const CommentTrack = (props: IProps) => {
   const router = useRouter();
-
+  const hasMounted = useHasMounted();
   const { comments, track, waveSurfer } = props;
   const [yourComment, setYourComment] = useState("");
   const { data: session } = useSession();
@@ -33,7 +34,7 @@ const CommentTrack = (props: IProps) => {
 
   const handleSubmit = async () => {
     const res = await sendRequest<IBackendRes<ITrackComment>>({
-      url: `http://localhost:8000/api/v1/comments`,
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comments`,
       method: "POST",
       body: {
         content: yourComment,
@@ -128,7 +129,7 @@ const CommentTrack = (props: IProps) => {
                   </div>
                 </Box>
                 <div style={{ fontSize: "12px", color: "#999" }}>
-                  {dayjs(comment.createdAt).fromNow()}
+                  {hasMounted && dayjs(comment.createdAt).fromNow()}
                 </div>
               </Box>
             );

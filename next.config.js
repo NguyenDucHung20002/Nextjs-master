@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  output: "standalone",
   swcMinify: true,
   modularizeImports: {
     "@mui/icons-material": {
@@ -10,10 +11,10 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "source.unsplash.com",
-        port: "",
-        pathname: "/random",
+        protocol: "http",
+        hostname: "localhost",
+        port: "8000",
+        pathname: "/images/**",
       },
     ],
   },

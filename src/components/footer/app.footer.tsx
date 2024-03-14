@@ -3,7 +3,6 @@ import { useTrackContext } from "@/lib/track.warpper";
 import { useHasMounted } from "@/utils/customHook";
 import { Container } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
-import Link from "next/link";
 import { useRef, useEffect } from "react";
 import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
@@ -39,16 +38,16 @@ const AppFooter = () => {
             }}
           >
             <Container
+              disableGutters
               sx={{
                 display: "flex",
                 gap: 10,
                 ".rhap_main": {
-                  gap: "30px",
+                  gap: "20px",
                 },
               }}
             >
               <AudioPlayer
-                showJumpControls={false}
                 ref={playerRef}
                 layout="horizontal-reverse"
                 src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/tracks/${currentTrack.trackUrl}`}
@@ -58,10 +57,12 @@ const AppFooter = () => {
                   background: "#f2f2f2",
                 }}
                 onPlay={() => {
-                  setCurrentTrack({ ...currentTrack, isPlaying: true });
+                  if (!currentTrack?.isPlaying)
+                    setCurrentTrack({ ...currentTrack, isPlaying: true });
                 }}
                 onPause={() => {
-                  setCurrentTrack({ ...currentTrack, isPlaying: false });
+                  if (currentTrack?.isPlaying)
+                    setCurrentTrack({ ...currentTrack, isPlaying: false });
                 }}
               />
               <div
@@ -70,18 +71,33 @@ const AppFooter = () => {
                   flexDirection: "column",
                   alignItems: "start",
                   justifyContent: "center",
-                  minWidth: 100,
+                  width: "220px",
                 }}
               >
-                <Link
-                  style={{ textDecoration: "none", color: "unset" }}
-                  href={`/track/${currentTrack._id}/?audio=${currentTrack.trackUrl}&id=${currentTrack._id}`}
+                <div
+                  title={currentTrack.description}
+                  style={{
+                    width: "100%",
+                    color: "#ccc",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
                 >
-                  <div style={{ color: "#ccc" }}>
-                    {currentTrack.description}
-                  </div>
-                  <div style={{ color: "black" }}>{currentTrack.title}</div>
-                </Link>
+                  {currentTrack.description}
+                </div>
+                <div
+                  title={currentTrack.title}
+                  style={{
+                    width: "100%",
+                    color: "black",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {currentTrack.title}
+                </div>
               </div>
             </Container>
           </AppBar>

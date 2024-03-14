@@ -1,17 +1,18 @@
 import WaveTrack from "@/components/track/wave.track";
 import Container from "@mui/material/Container";
 import { sendRequest } from "@/utils/api";
+import { notFound } from "next/navigation";
 
 const DetailTrackPage = async (props: any) => {
   const { params } = props;
 
   const res = await sendRequest<IBackendRes<ITrackTop>>({
-    url: `http://localhost:8000/api/v1/tracks/${params.slug}`,
+    url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/tracks/${params.slug}`,
     method: "GET",
   });
 
   const res1 = await sendRequest<IBackendRes<IModelPaginate<ITrackComment>>>({
-    url: `http://localhost:8000/api/v1/tracks/comments`,
+    url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/tracks/comments`,
     method: "POST",
     queryParams: {
       current: 1,
@@ -20,6 +21,8 @@ const DetailTrackPage = async (props: any) => {
       sort: "-createdAt",
     },
   });
+
+  await new Promise((resolve) => setTimeout(resolve, 3000));
 
   return (
     <Container>

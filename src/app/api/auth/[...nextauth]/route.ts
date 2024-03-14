@@ -5,7 +5,7 @@ import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions: AuthOptions = {
-  secret: process.env.NO_SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       // The name to display on the sign in form (e.g. "Sign in with...")
@@ -21,7 +21,7 @@ export const authOptions: AuthOptions = {
       async authorize(credentials, req) {
         // Add logic here to look up the user from the credentials supplied
         const res = await sendRequest<IBackendRes<JWT>>({
-          url: "http://localhost:8000/api/v1/auth/login",
+          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/login`,
           method: "POST",
           body: {
             username: credentials?.username,
@@ -49,7 +49,7 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user, account, profile, trigger }) {
       if (trigger === "signIn" && account?.provider !== "credentials") {
         const res = await sendRequest<IBackendRes<JWT>>({
-          url: "http://localhost:8000/api/v1/auth/social-media",
+          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/social-media`,
           method: "POST",
           body: {
             type: account?.provider.toLocaleUpperCase(),
